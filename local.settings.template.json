@@ -3,6 +3,12 @@
   "Values": {
     "FUNCTIONS_WORKER_RUNTIME": "node",
     "AzureWebJobsFeatureFlags": "EnableWorkerIndexing",
-    "AzureWebJobsStorage": "UseDevelopmentStorage=true"
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "VERIFY_TOKEN": "",
+    "SUBSCRIPTION_ID": "",
+    "TOPIC_ENDPOINT": "",
+    "TOPIC_KEY": "",
+    "SUBSCRIPTION_KEY": "",
+    "LOGGER_URI": ""
   }
 }

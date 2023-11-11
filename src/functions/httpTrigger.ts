@@ -1,12 +1,53 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { pushEventToEventGridTopic, validateStravaEvent, validateWebhook } from "../services/stravaService";
+import { insertLog } from "../services/loggerService";
+import { LogLevel } from "../dtos/logDTO";
 
-export async function httpTrigger(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    const name = request.query.get('name') || await request.text() || 'world';
-    return { body: `Hello, ${name}!` };
-};
+export async function stravaWebhook(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+  switch (request.method) {
+    case "GET":
+      const response = validateWebhook(request);
+      if (response.status !== 200) {
+        await insertLog({
+          level: LogLevel.ERROR,
+          message: response.body.toString(),
+          category: "strava",
+        });
+      }
+      return response;
+    case "POST":
+      const requestBody = await request.text();
+      const stravaEvent = await validateStravaEvent(requestBody);
+      if (!stravaEvent) {
+        await insertLog({
+          level: LogLevel.ERROR,
+          message: "Strava event failed to validate",
+          data: requestBody,
+          category: "strava",
+        });
+        return { status: 200 };
+      }
+      const SUBSCRIPTION_ID = process.env["SUBSCRIPTION_ID"];
+      if (stravaEvent.subscription_id.toString() !== SUBSCRIPTION_ID) {
+        await insertLog({
+          level: LogLevel.WARN,
+          message: `Invalid Subscription ID: ${SUBSCRIPTION_ID}`,
+          category: "strava",
+        });
+        return { status: 200 };
+      }
+      await pushEventToEventGridTopic(stravaEvent);
+      return { status: 200 };
+    default:
+      return {
+        status: 405,
+        body: "Method not supported",
+      };
+  }
+}
 
-app.http('httpTrigger', {
-    methods: ['GET', 'POST'],
-    authLevel: 'function',
-    handler: httpTrigger
+app.http("stravaWebhook", {
+  methods: ["GET", "POST"],
+  authLevel: "function",
+  handler: stravaWebhook,
 });

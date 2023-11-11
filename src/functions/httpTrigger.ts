@@ -46,7 +46,7 @@ export async function stravaWebhook(request: HttpRequest, context: InvocationCon
   }
 }
 
-app.http("stravaWebhook", {
+app.http("stravaWebhookTrigger", {
   methods: ["GET", "POST"],
   authLevel: "function",
   handler: stravaWebhook,

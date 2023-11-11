@@ -19,7 +19,7 @@ exec("az login", (error, stdout, stderr) => {
 
   // Deploy function app via Zip Deploy
   exec(
-    `az functionapp deployment source config-zip --resource-group ${resourceGroup} --name ${appName} --src deploy.zip`,
+    `az functionapp deployment source config-zip --resource-group ${resourceGroup} --name ${appName} --src dist/deploy.zip`,
     (error, stdout, stderr) => {
       // Handle error...
       console.log({ resourceGroup, appName });

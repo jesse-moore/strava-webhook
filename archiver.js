@@ -1,28 +1,52 @@
-// zip.js
 const archiver = require("archiver");
 const fs = require("fs");
 
-const output = fs.createWriteStream(__dirname + "/deploy.zip");
-const archive = archiver("zip");
+async function archiveBuild() {
+  try {
+    if (!fs.existsSync(__dirname + "/dist")) {
+      fs.mkdirSync(__dirname + "/dist");
+    }
 
-output.on("close", function () {
-  console.log(archive.pointer() + " total bytes");
-  console.log("Archiver has been finalized and the output file descriptor has closed.");
-});
+    const output = fs.createWriteStream(__dirname + "/dist/deploy.zip");
+    const archive = archiver("zip");
 
-archive.on("error", function (err) {
-  throw err;
-});
+    output.on("close", function () {
+      console.log(archive.pointer() + " total bytes");
+      console.log("Archiver has been finalized and the output file descriptor has closed.");
+    });
 
-archive.pipe(output);
+    archive.on("error", function (err) {
+      throw err;
+    });
 
-// Add files & directories
-archive.file("package.json", { name: "package.json" });
-archive.file("package-lock.json", { name: "package-lock.json" });
-// archive.glob("node_modules/**/*");
+    archive.pipe(output);
 
-// Ensure to add transpiled JS files and other necessary files
-// archive.glob('dist/**/*');
-archive.directory(".rollup/", false);
+    // Add files & directories
+    const packageJSON = await updatePackageJSON();
+    archive.append(packageJSON, { name: "package.json" });
+    archive.file("package-lock.json", { name: "package-lock.json" });
 
-archive.finalize();
+    archive.directory(".rollup/", false);
+
+    archive.finalize();
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function updatePackageJSON() {
+  return new Promise((res, rej) => {
+    fs.readFile("package.json", "utf8", (err, data) => {
+      if (err) {
+        rej(`Error reading the file: ${err}`);
+      }
+
+      const jsonObject = JSON.parse(data);
+      jsonObject.main = "httpTrigger.js";
+
+      res(JSON.stringify(jsonObject, null, 2));
+    });
+  });
+}
+
+archiveBuild();

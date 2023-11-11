@@ -2,10 +2,10 @@
   "name": "azure-functions-template",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/src/functions/httpTrigger.js",
+  "main": "build/src/functions/httpTrigger.js",
   "scripts": {
     "build": "npm run clean && npx rollup --config && npm run zip",
-    "clean": "rimraf .rollup && rimraf ./dist && rimraf deploy.zip",
+    "clean": "rimraf .rollup && rimraf ./build && rimraf ./dist",
     "deploy": "node deploy.js",
     "watch": "tsc -w",
     "prestart": "npm run build && func extensions install",
@@ -17,6 +17,7 @@
   "dependencies": {
     "@azure/eventgrid": "^4.15.0",
     "@azure/functions": "^4.0.0-alpha.9",
+    "@rollup/plugin-json": "^6.0.1",
     "archiver": "^6.0.1",
     "tslib": "^2.6.2",
     "uuid": "^9.0.1"

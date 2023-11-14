@@ -23,7 +23,7 @@ export default {
       ],
     }),
     commonjs(),
-    nodeResolve({ preferBuiltins: true }),
+    nodeResolve({ preferBuiltins: true, exportConditions: ["node"] }),
     json(),
   ],
 };

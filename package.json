@@ -8,21 +8,22 @@
     "clean": "rimraf .rollup && rimraf ./build && rimraf ./dist",
     "deploy": "node deploy.js",
     "watch": "tsc -w",
-    "prestart": "npm run build && func extensions install",
+    "prestart": "func extensions install",
     "start": "npm-run-all --parallel start:host watch",
-    "start:host": "func start",
+    "start:host": "func start --port",
     "test": "mocha -r ts-node/register test/**/*.test.ts",
     "zip": "node archiver.js"
   },
   "dependencies": {
     "@azure/eventgrid": "^4.15.0",
     "@azure/functions": "^4.0.0-alpha.9",
-    "@rollup/plugin-json": "^6.0.1",
-    "archiver": "^6.0.1",
-    "tslib": "^2.6.2",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
+    "archiver": "^6.0.1",
+    "tslib": "^2.6.2",
+    "npm-run-all": "^4.1.5",
+    "@rollup/plugin-json": "^6.0.1",
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4",

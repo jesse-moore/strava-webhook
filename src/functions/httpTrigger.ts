@@ -31,12 +31,21 @@ export async function stravaWebhook(request: HttpRequest, context: InvocationCon
       if (stravaEvent.subscription_id.toString() !== SUBSCRIPTION_ID) {
         await insertLog({
           level: LogLevel.WARN,
-          message: `Invalid Subscription ID: ${SUBSCRIPTION_ID}`,
+          message: `Invalid Subscription ID: ${stravaEvent.subscription_id.toString()}`,
           category: "strava",
         });
         return { status: 200 };
       }
-      await pushEventToEventGridTopic(stravaEvent);
+      try {
+        await pushEventToEventGridTopic(stravaEvent);
+      } catch (error) {
+        await insertLog({
+          level: LogLevel.ERROR,
+          message: error.message,
+          category: "strava",
+          data: error,
+        });
+      }
       return { status: 200 };
     default:
       return {
